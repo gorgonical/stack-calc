@@ -29,6 +29,7 @@ float calculate(char *expr, struct operatorStack *rStack, struct operandStack *d
 				int closeParenIndex;
 				int subresult;
 				int end;
+				int negDigit = 0;
 						 
 				// While we aren't at the end of the expression
 				for (int i=0; expr[i] != '\0'; i++) {
@@ -47,13 +48,21 @@ float calculate(char *expr, struct operatorStack *rStack, struct operandStack *d
 												pushOperator(rStack, 'e'); // Push e onto stack to initialize this "virtual stack"
 												subresult = calculate(parenSubstr, rStack, dStack);
 												popOperator(rStack); // Pop e off stack to close virtual stack
-												pushOperand(dStack, subresult);
-							 
+												if (i !=0 && expr[i-1] == '-') {
+																pushOperand(dStack, (-1*subresult));
+																negDigit = 0;
+												} else {																										
+																pushOperand(dStack, subresult);
+												}
 												i=closeParenIndex;							 
 								} else {
 												switch(expr[i]) {
 												case '+':
 												case '-':
+																if (i == 0 || isOperator(expr[i-1])) {
+																				negDigit = 1;
+																				break;
+																}
 												case '^':
 												case '/':
 												case '*':
@@ -72,8 +81,13 @@ float calculate(char *expr, struct operatorStack *rStack, struct operandStack *d
 																strncpy(digitString, &expr[i], (end-i));
 																digitString[end-i] = '\0';
 																float num = atof(digitString);
-										
-																pushOperand(dStack, num);
+
+																if (negDigit) {
+																				pushOperand(dStack, (-1*num));
+																				negDigit = 0;
+																} else {
+																				pushOperand(dStack, num);
+																}
 										
 																i = end-1;
 																free(digitString);										
@@ -186,4 +200,18 @@ int cmpOp(char leftOp, char rightOp)
 								return 2;
 				}
 								 
+}
+
+int isOperator(char candidate)
+{
+				switch (candidate) {
+				case '^':
+				case '*':
+				case '-':
+				case '+':
+				case '/':
+								return 1;
+				default:
+								return 0;
+				}
 }

@@ -27,3 +27,4 @@ int pushOperand(struct operandStack *st, float opd);
 char peekOperator(struct operatorStack *st);
 char popOperator(struct operatorStack *st);
 int pushOperator(struct operatorStack *st, char opr);
+int isOperator(char candidate);
